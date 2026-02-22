@@ -78,7 +78,8 @@ convert_image() {
     local current_dpi
     current_dpi=$(identify -format "%x" "$input_file" 2>/dev/null | head -1)
     # identify returns values like "300 PixelsPerInch" or just a number
-    current_dpi=$(echo "$current_dpi" | grep -oP '^\d+' || echo "0")
+    # Using grep -E for BSD compatibility (no -P support on macOS)
+    current_dpi=$(echo "$current_dpi" | grep -oE '^[0-9]+' || echo "0")
 
     local density_args=()
     if [[ -z "$current_dpi" || "$current_dpi" -lt 300 ]]; then

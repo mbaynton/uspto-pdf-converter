@@ -325,19 +325,20 @@ check_multimedia() {
     local pdf_strings
     pdf_strings=$(strings "$pdf_file" 2>/dev/null)
 
-    # Use word-boundary-aware patterns to avoid false positives from
+    # Use word-boundary patterns to avoid false positives from
     # hex values or font names containing these substrings.
     # PDF operators are always /Name at the start of a token.
-    if echo "$pdf_strings" | grep -aqP '(?<![:\w])/Movie(?!\w)'; then
+    # Using grep -E for BSD compatibility (no -P support on macOS)
+    if echo "$pdf_strings" | grep -aEq '(^|[^:[:alnum:]])/Movie([^[:alnum:]]|$)'; then
         issues+="Movie "
     fi
-    if echo "$pdf_strings" | grep -aqP '(?<![:\w])/Sound(?!\w)'; then
+    if echo "$pdf_strings" | grep -aEq '(^|[^:[:alnum:]])/Sound([^[:alnum:]]|$)'; then
         issues+="Sound "
     fi
-    if echo "$pdf_strings" | grep -aqP '(?<![:\w])/3D(?![0-9a-zA-Z])'; then
+    if echo "$pdf_strings" | grep -aEq '(^|[^:[:alnum:]])/3D([^0-9a-zA-Z]|$)'; then
         issues+="3D "
     fi
-    if echo "$pdf_strings" | grep -aqP '(?<![:\w])/RichMedia(?!\w)'; then
+    if echo "$pdf_strings" | grep -aEq '(^|[^:[:alnum:]])/RichMedia([^[:alnum:]]|$)'; then
         issues+="RichMedia "
     fi
 

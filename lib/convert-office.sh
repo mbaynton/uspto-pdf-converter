@@ -12,7 +12,18 @@ convert_office() {
     local input_file="$1"
     local output_pdf="$2"
 
-    require_tool libreoffice libreoffice || return $?
+    # Check for LibreOffice - try 'libreoffice' first, then 'soffice' (macOS)
+    local libreoffice_cmd=""
+    if command -v libreoffice >/dev/null 2>&1; then
+        libreoffice_cmd="libreoffice"
+    elif command -v soffice >/dev/null 2>&1; then
+        libreoffice_cmd="soffice"
+    elif [[ -x "/Applications/LibreOffice.app/Contents/MacOS/soffice" ]]; then
+        libreoffice_cmd="/Applications/LibreOffice.app/Contents/MacOS/soffice"
+    else
+        log_error "'libreoffice' is not installed. Install it with: sudo apt-get install libreoffice (or run install-deps.sh)"
+        return "$EXIT_MISSING_TOOL"
+    fi
 
     local temp_dir
     temp_dir=$(make_temp_dir)
@@ -25,7 +36,7 @@ convert_office() {
 
     # LibreOffice insists on writing to --outdir with its own chosen filename,
     # so we use a temp directory and move the result.
-    if ! libreoffice --headless --norestore --convert-to pdf \
+    if ! "$libreoffice_cmd" --headless --norestore --convert-to pdf \
         --outdir "$temp_dir" "$input_file" \
         >"$temp_dir/lo_stdout.log" 2>"$temp_dir/lo_stderr.log"; then
         log_error "LibreOffice conversion failed for: $input_file"

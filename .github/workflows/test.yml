@@ -76,7 +76,7 @@ jobs:
           submodules: recursive
 
       - name: Build Docker image
-        run: docker build -t uspto-pdf-converter .
+        run: docker build --platform linux/amd64 -t uspto-pdf-converter .
 
       - name: Run tests in Docker container
         shell: bash
