@@ -81,7 +81,7 @@ make_temp_dir() {
 }
 
 cleanup_temp_dirs() {
-    for dir in "${_CLEANUP_DIRS[@]}"; do
+    for dir in "${_CLEANUP_DIRS[@]+"${_CLEANUP_DIRS[@]}"}"; do
         [[ -d "$dir" ]] && rm -rf "$dir"
     done
 }

@@ -1,5 +1,7 @@
 # USPTO PDF Converter
 
+[![Tests](https://github.com/mbaynton/uspto-pdf-converter/workflows/Tests/badge.svg)](https://github.com/mbaynton/uspto-pdf-converter/actions)
+
 Command-line scripts to automate conversion of documents to USPTO Patent Center compliant PDFs or validate a PDF against USPTO requirements.
 
 ## Features
@@ -186,6 +188,33 @@ Format-specific tools (optional, install only what you need):
 - **LaTeX**: pdflatex, TeX Live
 - **PostScript**: Ghostscript
 
+## Testing
+
+This project includes comprehensive end-to-end tests using [Bats](https://github.com/bats-core/bats-core).
+
+### Running Tests Locally
+
+```bash
+# Run all tests
+./run-tests.sh
+
+# Run specific test file
+test/bats/bin/bats test/conversion.bats
+
+# Run tests for specific format
+test/bats/bin/bats test/conversion.bats --filter "docx"
+```
+
+Tests verify that all supported file formats convert successfully and pass USPTO validation. See [test/README.md](test/README.md) for more details.
+
+### Continuous Integration
+
+Tests automatically run on GitHub Actions for every push/PR on:
+- Ubuntu (latest) with local install
+- macOS (latest) with Homebrew install
+- Fedora (latest) in Docker
+- Docker image build verification
+
 ## Building the Docker Image
 
 To build the Docker image locally:
@@ -196,12 +225,27 @@ cd uspto-pdf-converter
 docker build -t uspto-pdf-converter .
 ```
 
+## Bug Reports
+
+This project currently receives minimal maintenance, and so fixing bugs is prioritized in this order:
+
+ 1. Cases where the input is a PDF, or where the input document could be converted to a PDF successfully,
+    but that PDF was rejected by Patent Center.
+ 2. Cases where the input is a PDF, but the output PDF's visual formatting was poor / unsubmittable.
+ 3. Cases where the Docker image failed to convert an input document.
+ 4. (Least likely to be fixed, in the interests of transparency): Other issues, such as poor formatting.
+
+To report a bug, create a new issue at https://github.com/mbaynton/uspto-pdf-converter/issues. When you
+have a document that can be shared that reproduces the bug, this will make a fix much more likely.
+
 ## Contributing
 
-Contributions are welcome! Please:
+Contributions are welcome!
+
+As a developer, please:
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes with tests
+3. Make your changes
 4. Submit a pull request
 
 ## License

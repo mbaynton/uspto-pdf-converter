@@ -1,0 +1,20 @@
+# Test outputs
+test/output/
+test-output/
+*.compliant.pdf
+*_part*.pdf
+
+# Temporary files
+*.tmp
+.DS_Store
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# OS files
+Thumbs.db
