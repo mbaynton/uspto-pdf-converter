@@ -14,6 +14,9 @@ readonly EXIT_NORMALIZATION_FAILED=4
 readonly EXIT_VALIDATION_FAILED=5
 readonly EXIT_USAGE=6
 
+# File size limits (USPTO Patent Center requirement: 25 MiB max)
+readonly MAX_PDF_SIZE_BYTES=25690112  # 24.5 MiB = 24.5 * 1024 * 1024
+
 # Colors (disabled if not a terminal)
 if [[ -t 1 ]]; then
     readonly RED='\033[0;31m'
@@ -33,7 +36,7 @@ fi
 VERBOSE="${VERBOSE:-0}"
 
 log_info() {
-    echo -e "${BOLD}[INFO]${RESET} $*"
+    echo -e "${BOLD}[INFO]${RESET} $*" >&2
 }
 
 log_warn() {
@@ -45,16 +48,16 @@ log_error() {
 }
 
 log_pass() {
-    echo -e "  ${GREEN}PASS${RESET}: $*"
+    echo -e "  ${GREEN}PASS${RESET}: $*" >&2
 }
 
 log_fail() {
-    echo -e "  ${RED}FAIL${RESET}: $*"
+    echo -e "  ${RED}FAIL${RESET}: $*" >&2
 }
 
 log_verbose() {
     if [[ "$VERBOSE" -ge 1 ]]; then
-        echo -e "${BOLD}[DEBUG]${RESET} $*"
+        echo -e "${BOLD}[DEBUG]${RESET} $*" >&2
     fi
 }
 
@@ -136,4 +139,19 @@ resolve_lib_dir() {
         # Called from within lib/
         echo "$dir"
     fi
+}
+
+# Get file size in bytes
+get_file_size_bytes() {
+    local file="$1"
+    stat --printf='%s' "$file" 2>/dev/null
+}
+
+# Check if file exceeds the size limit
+# Returns 0 (success) if file exceeds limit, 1 (failure) if under limit
+exceeds_size_limit() {
+    local file="$1"
+    local size
+    size=$(get_file_size_bytes "$file")
+    [[ "$size" -gt "$MAX_PDF_SIZE_BYTES" ]]
 }

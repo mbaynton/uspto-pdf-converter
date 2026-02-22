@@ -29,6 +29,7 @@ LIB_DIR="$PROJECT_ROOT/lib"
 
 source "$LIB_DIR/common.sh"
 source "$LIB_DIR/normalize.sh"
+source "$LIB_DIR/split.sh"
 source "$LIB_DIR/convert-office.sh"
 source "$LIB_DIR/convert-image.sh"
 source "$LIB_DIR/convert-text.sh"
@@ -142,26 +143,71 @@ convert_single_file() {
         return "$EXIT_NORMALIZATION_FAILED"
     fi
 
-    # Step 3: Validate (unless skipped)
-    if [[ "$skip_validation" -eq 0 ]]; then
-        local validator="$PROJECT_ROOT/uspto-pdf-validate.sh"
-        if [[ -x "$validator" ]]; then
-            log_info "Validating output..."
-            if ! "$validator" "$normalized_pdf"; then
-                log_warn "Validation FAILED for: $input_file"
-                log_warn "The output PDF may not be fully compliant."
-                # Still produce the output, but warn and use non-zero exit
-                cp "$normalized_pdf" "$output_pdf"
-                log_info "Output (non-compliant): $output_pdf"
-                return "$EXIT_VALIDATION_FAILED"
-            fi
-        else
-            log_verbose "Validator not found at $validator, skipping validation."
+    # Step 2.5: Check size and split if necessary
+    local output_files=()
+    local file_size
+    file_size=$(get_file_size_bytes "$normalized_pdf")
+
+    if [[ "$file_size" -gt "$MAX_PDF_SIZE_BYTES" ]]; then
+        # Determine output base name (without .pdf extension)
+        local output_base="${output_pdf%.pdf}"
+
+        # Split and get list of output files
+        local split_result
+        if ! split_result=$(split_pdf_by_size "$normalized_pdf" "$output_base" "$MAX_PDF_SIZE_BYTES"); then
+            log_error "Failed to split PDF: $input_file"
+            return "$EXIT_CONVERSION_FAILED"
         fi
+
+        # Read split files into array
+        mapfile -t output_files <<< "$split_result"
+    else
+        # No splitting needed
+        output_files=("$output_pdf")
+        cp "$normalized_pdf" "$output_pdf"
     fi
 
-    cp "$normalized_pdf" "$output_pdf"
-    log_info "Output: $output_pdf"
+    # Step 3: Validate each output file (unless skipped)
+    local validation_failed=0
+    for output_file in "${output_files[@]}"; do
+        if [[ "$skip_validation" -eq 0 ]]; then
+            local validator="$PROJECT_ROOT/uspto-pdf-validate.sh"
+            if [[ -x "$validator" ]]; then
+                log_info "Validating $(basename "$output_file")..."
+                if ! "$validator" "$output_file"; then
+                    log_warn "Validation FAILED for: $(basename "$output_file")"
+                    validation_failed=1
+                fi
+            else
+                log_verbose "Validator not found at $validator, skipping validation."
+            fi
+        fi
+    done
+
+    # Handle validation failures
+    if [[ "$validation_failed" -eq 1 ]]; then
+        log_warn "One or more output files failed validation"
+        log_warn "The output PDF(s) may not be fully compliant."
+        if [[ ${#output_files[@]} -gt 1 ]]; then
+            log_info "Output (${#output_files[@]} parts):"
+            for file in "${output_files[@]}"; do
+                log_info "  - $(basename "$file")"
+            done
+        else
+            log_info "Output (non-compliant): ${output_files[0]}"
+        fi
+        return "$EXIT_VALIDATION_FAILED"
+    fi
+
+    # Success - log output file(s)
+    if [[ ${#output_files[@]} -gt 1 ]]; then
+        log_info "Output (${#output_files[@]} parts):"
+        for file in "${output_files[@]}"; do
+            log_info "  - $(basename "$file")"
+        done
+    else
+        log_info "Output: ${output_files[0]}"
+    fi
     return "$EXIT_OK"
 }
 
