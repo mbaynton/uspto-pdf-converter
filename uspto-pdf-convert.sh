@@ -1,5 +1,5 @@
 #!/bin/bash
-# uspto-pdf-convert.sh — Convert documents to USPTO EFS-Web compliant PDFs
+# uspto-pdf-convert.sh — Convert documents to USPTO Patent Center compliant PDFs
 #
 # Usage:
 #   uspto-pdf-convert.sh [options] INPUT_FILE [INPUT_FILE ...]

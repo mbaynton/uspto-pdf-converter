@@ -1,5 +1,5 @@
 #!/bin/bash
-# uspto-pdf-validate.sh — Validate a PDF against USPTO EFS-Web requirements
+# uspto-pdf-validate.sh — Validate a PDF against USPTO Patent Center requirements
 #
 # Usage:
 #   uspto-pdf-validate.sh [-v] PDF_FILE [PDF_FILE ...]
