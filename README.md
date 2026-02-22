@@ -213,6 +213,7 @@ Tests automatically run on GitHub Actions for every push/PR on:
 - Ubuntu (latest) with local install
 - macOS (latest) with Homebrew install
 - Fedora (latest) in Docker
+- Windows (latest) with Docker
 - Docker image build verification
 
 ## Building the Docker Image
