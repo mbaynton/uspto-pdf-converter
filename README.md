@@ -196,12 +196,27 @@ cd uspto-pdf-converter
 docker build -t uspto-pdf-converter .
 ```
 
+## Bug Reports
+
+This project currently receives minimal maintenance, and so fixing bugs is prioritized in this order:
+
+ 1. Cases where the input is a PDF, or where the input document could be converted to a PDF successfully,
+    but that PDF was rejected by Patent Center.
+ 2. Cases where the input is a PDF, but the output PDF's visual formatting was poor / unsubmittable.
+ 3. Cases where the Docker image failed to convert an input document.
+ 4. (Least likely to be fixed, in the interests of transparency): Other issues, such as poor formatting.
+
+To report a bug, create a new issue at https://github.com/mbaynton/uspto-pdf-converter/issues. When you
+have a document that can be shared that reproduces the bug, this will make a fix much more likely.
+
 ## Contributing
 
-Contributions are welcome! Please:
+Contributions are welcome!
+
+As a developer, please:
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes with tests
+3. Make your changes
 4. Submit a pull request
 
 ## License
