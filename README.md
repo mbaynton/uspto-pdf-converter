@@ -1,5 +1,7 @@
 # USPTO PDF Converter
 
+[![Tests](https://github.com/mbaynton/uspto-pdf-converter/workflows/Tests/badge.svg)](https://github.com/mbaynton/uspto-pdf-converter/actions)
+
 Command-line scripts to automate conversion of documents to USPTO Patent Center compliant PDFs or validate a PDF against USPTO requirements.
 
 ## Features
@@ -185,6 +187,33 @@ Format-specific tools (optional, install only what you need):
 - **HTML**: Chrome or Chromium
 - **LaTeX**: pdflatex, TeX Live
 - **PostScript**: Ghostscript
+
+## Testing
+
+This project includes comprehensive end-to-end tests using [Bats](https://github.com/bats-core/bats-core).
+
+### Running Tests Locally
+
+```bash
+# Run all tests
+./run-tests.sh
+
+# Run specific test file
+test/bats/bin/bats test/conversion.bats
+
+# Run tests for specific format
+test/bats/bin/bats test/conversion.bats --filter "docx"
+```
+
+Tests verify that all supported file formats convert successfully and pass USPTO validation. See [test/README.md](test/README.md) for more details.
+
+### Continuous Integration
+
+Tests automatically run on GitHub Actions for every push/PR on:
+- Ubuntu (latest) with local install
+- macOS (latest) with Homebrew install
+- Fedora (latest) in Docker
+- Docker image build verification
 
 ## Building the Docker Image
 
